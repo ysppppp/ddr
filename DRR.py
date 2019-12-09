@@ -1,4 +1,5 @@
 import time
+import spidev
 import RPi.GPIO as GPIO
 import busio
 import board
@@ -18,6 +19,8 @@ class Motor:
         self.pwm.start(dutycycle)
     # def move_backward():
     #     return
+    def stop(self):
+        self.pwm.start(0)
 #IMU
 class Sensor:
     def __init__(self, i2c):
@@ -55,11 +58,21 @@ class Ultrasonic:
 #    print(distance)
 
 #Dust Sensor
-def dssensor():
-    return
+class Dsensor:
+    def __init__(self):
+        self.spi = spidev.SpiDev()
+        self.spi.open(0,0)
+        self.spi.max_speed_hz = 7629
+        return
 
-def light_intensity():
-    return
+    def readVal(self):
+        resp = self.spi.xfer2([0b00000001, 0b10000000, 0b00000000])
+        return resp
+
+#dss = Dsensor()
+#while 1:
+#    print(format(dss.readVal()[2], '#010b'))
+#    time.sleep(1)
 
 #Thermal Camera
 class Thermal_Cam:
