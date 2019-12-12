@@ -1,4 +1,5 @@
 import time
+import serial
 import spidev
 import RPi.GPIO as GPIO
 import busio
@@ -26,9 +27,10 @@ class Sensor:
     def __init__(self, i2c):
         self.sensor = IMU.LSM9DS1_I2C(i2c)
     def read_IMU(self):
-        self.mag_x, self.mag_y, self.mag_z = self.sensor.magnetic
-        self.gyro_x, self.gyro_y, self.gyro_z = self.sensor.gyro
-        self.temp = self.sensor.temperature
+        mag_x, mag_y, mag_z = self.sensor.magnetic
+        gyro_x, gyro_y, gyro_z = self.sensor.gyro
+        temp = self.sensor.temperature
+        return mag_x, mag_y, mag_z, gyro_x, gyro_y, gyro_z, temp
 
 #Ultrasonic
 class Ultrasonic:
@@ -66,12 +68,14 @@ class Dsensor:
         return
 
     def readVal(self):
-        resp = self.spi.xfer2([0b00000001, 0b10000000, 0b00000000])
-        return resp
+        resp = self.spi.xfer2([0b01101000, 0b00000000])
+        temp = resp[0]*1000+resp[1]
+        res = bin(temp)
+        return res
 
 #dss = Dsensor()
 #while 1:
-#    print(format(dss.readVal()[2], '#010b'))
+#    print(format(dss.readVal()))
 #    time.sleep(1)
 
 #Thermal Camera
@@ -111,8 +115,30 @@ class AQSensor:
 #
 
 #GPS
-def init_gps():
-    return
+class GPS:
+    def __init__(self):
+        self.ser = serial.Serial ("/dev/ttyS0", 9600)
+    
+    def readVal(self):
+        res = 0
+        received_data = self.ser.read()              #read serial port
+        time.sleep(0.03)
+        data_left = self.ser.inWaiting()             #check for remaining byte
+        received_data += self.ser.read(data_left)
+        a = received_data.decode("utf-8").split(",")
+        if(a[0] == "$GNGGA"):
+            gpsData = {
+            "ts" : a[1],
+            "lat" : a[2],
+            "latDir" : a[3],
+            "long" : a[4],
+            "longDir" : a[5],
+            "fix" : a[6]
+        }
+            return gpsData
+        #print received data
 
-def location():
-    return
+sss = GPS()
+while 1:   
+    print(sss.readVal())
+
