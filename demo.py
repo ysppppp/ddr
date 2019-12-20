@@ -48,5 +48,5 @@ while 1:
     print(format(dss.readVal()))
     print(Tcam.readVal())
     aqsVal()
-    print(gps.readVal())
+    gps.readVal()
     time.sleep(3)

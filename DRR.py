@@ -15,7 +15,7 @@ class Motor:
         GPIO.setup(pinNum, GPIO.OUT)
         GPIO.output(pinNum, GPIO.LOW)
         self.pwm = GPIO.PWM(pinNum, 1000)
-        
+
     def move_forward(self, dutycycle):
         self.pwm.start(dutycycle)
     # def move_backward():
@@ -90,14 +90,14 @@ class Thermal_Cam:
 #while(1):
 #    print(ttt.readVal())
 #    time.sleep(1)
-    
+
 #Gas Sensor
 class AQSensor:
     def __init__(self, i2c):
         self.gas_sensor = AQS.Adafruit_SGP30(i2c)
         self.gas_sensor.iaq_init()
         self.gas_sensor.set_iaq_baseline(0x8973, 0x8aae)
-        
+
     def readVal(self):
         eCO2 = self.gas_sensor.eCO2
         TVOC = self.gas_sensor.TVOC
@@ -118,7 +118,7 @@ class AQSensor:
 class GPS:
     def __init__(self):
         self.ser = serial.Serial ("/dev/ttyS0", 9600)
-    
+
     def readVal(self):
         res = 0
         received_data = self.ser.read()              #read serial port
@@ -135,10 +135,5 @@ class GPS:
             "longDir" : a[5],
             "fix" : a[6]
         }
-            return gpsData
+            print gpsData
         #print received data
-
-sss = GPS()
-while 1:   
-    print(sss.readVal())
-
