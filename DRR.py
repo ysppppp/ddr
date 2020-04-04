@@ -136,7 +136,7 @@ class GPS:
             "fix" : a[6]
         }
             print gpsData
-            int x = 5
+            # int x = 5
         #print received data
         #TESTING TESTING
         #hello
