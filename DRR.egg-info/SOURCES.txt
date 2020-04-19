@@ -1,4 +1,5 @@
 DRR.py
+README.md
 setup.py
 DRR.egg-info/PKG-INFO
 DRR.egg-info/SOURCES.txt
