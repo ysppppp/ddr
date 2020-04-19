@@ -29,8 +29,11 @@ class Sensor:
     def read_IMU(self):
         mag_x, mag_y, mag_z = self.sensor.magnetic
         gyro_x, gyro_y, gyro_z = self.sensor.gyro
+        return mag_x, mag_y, mag_z, gyro_x, gyro_y, gyro_z
+
+    def read_TEMP(self):
         temp = self.sensor.temperature
-        return mag_x, mag_y, mag_z, gyro_x, gyro_y, gyro_z, temp
+        return temp
 
 #Ultrasonic
 class Ultrasonic:
@@ -126,6 +129,7 @@ class GPS:
         data_left = self.ser.inWaiting()             #check for remaining byte
         received_data += self.ser.read(data_left)
         a = received_data.decode("utf-8").split(",")
+        #Cycle through data here
         if(a[0] == "$GNGGA"):
             gpsData = {
             "ts" : a[1],
@@ -135,8 +139,5 @@ class GPS:
             "longDir" : a[5],
             "fix" : a[6]
         }
-            print gpsData
-            # int x = 5
-        #print received data
-        #TESTING TESTING
-        #hello
+            # print gpsData
+            return gpsData
