@@ -130,14 +130,17 @@ class GPS:
         received_data += self.ser.read(data_left)
         a = received_data.decode("utf-8").split(",")
         #Cycle through data here
-        if(a[0] == "$GNGGA"):
-            gpsData = {
-            "ts" : a[1],
-            "lat" : a[2],
-            "latDir" : a[3],
-            "long" : a[4],
-            "longDir" : a[5],
-            "fix" : a[6]
+        for i in range(len(a)):
+
+            if(a[i] == "$GNGGA"):
+                gpsData = {
+                "ts" : a[i+1],
+                "lat" : a[i+2],
+                "latDir" : a[i+3],
+                "long" : a[i+4],
+                "longDir" : a[i+5],
+                "fix" : a[i+6]
+                
         }
             # print gpsData
             return gpsData
