@@ -8,17 +8,17 @@ TRIG = 22
 ECHO = 23
 
 #motor
-motor1 = DRR.Motor(18)
-motor1.move_forward(50)
-DRR.time.sleep(5)
-motor1.stop()
+#motor1 = DRR.Motor(18)
+#motor1.move_forward(50)
+#DRR.time.sleep(5)
+#motor1.stop()
 
 #imu
 accgyro = DRR.Sensor(i2c)
 #print(accgyro.read_IMU())
 
 #ultrasonic
-us_dis = DRR.Ultrasonic(TRIG, ECHO)
+#us_dis = DRR.Ultrasonic(TRIG, ECHO)
 #print(us_dis.distance())
 
 #dust sensor(photodiode)
@@ -44,8 +44,8 @@ def aqsVal():
 gps = DRR.GPS()
 while 1:
     print(accgyro.read_IMU())
-    print(us_dis.distance())
-    print(format(dss.readVal()))
+    #print(us_dis.distance())
+    #print(format(dss.readVal()))
     print(Tcam.readVal())
     aqsVal()
     gps.readVal()

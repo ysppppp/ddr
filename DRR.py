@@ -140,7 +140,7 @@ class GPS:
                 "long" : a[i+4],
                 "longDir" : a[i+5],
                 "fix" : a[i+6]
-                
+
         }
             # print gpsData
             return gpsData
