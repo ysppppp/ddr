@@ -12,6 +12,8 @@ ECHO = 23
 HUMANTEMP = 32
 OBSTACLE = 15
 
+motorL = DRR.motor(18)
+motorR = DRR.motor(13)
 
 t_cam = DRR.Thermal_Cam(i2c)
 gps = DRR.GPS()
@@ -28,6 +30,31 @@ dis_q = Queue()
 human_detected = Event()
 obstacle_detected = Event()
 
+def moveL(speed):
+    while True:
+        motorL.move_forward(speed)
+
+def moveR(speed):
+    while True:
+        motorR.move_forward(speed)
+
+def movement():
+    while True:
+        obstacle_detected.wait()
+        motorR.stop()
+        time.sleep(1)
+        obstacle_detected.clear()
+
+moveL_thread = Thread(target=moveL, arg=[20])
+moveL_thread.start()
+moveR_thread = Thread(target=moveR, arg=[20])
+moveR_thread.start()
+movemment_thread = Thread(target=movement, arg=[])
+movement_thread.start()
+
+moveL_thread.join()
+moveR_thread.join()
+movement_thread.join()
 
 #i2c_lock = Lock()
 #gps_l = Lock()
@@ -47,9 +74,10 @@ def obstacleCheck():
             obstacle_detected.set()
 
 def obstacleDetected():
-    while
-    obstacle_detected.wait()
-    print('too close to an object')
+    while True:
+        obstacle_detected.wait()
+        print('too close to an object')
+        obstacle_detected.clear()
 
 #Termal Camera
 def detectHuman(t_cam):
@@ -70,7 +98,7 @@ def detectHuman(t_cam):
 #            return True
 #        else:
 #            return False
-        return
+
 
 
 def alertUser():
@@ -169,6 +197,7 @@ print_gyro.start()
 
 t_cam_thread.join()
 alert_user_thread.join()
+
 us_dis_thread.join()
 obstacleCheck_thread.join()
 obstacleDetected_thread.join()
