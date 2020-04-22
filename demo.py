@@ -8,10 +8,10 @@ TRIG = 22
 ECHO = 23
 
 #motor
-#motor1 = DRR.Motor(18)
-#motor1.move_forward(50)
-#DRR.time.sleep(5)
-#motor1.stop()
+motor1 = DRR.Motor(4)
+motor1.move_forward(50)
+DRR.time.sleep(5)
+motor1.stop()
 
 #imu
 accgyro = DRR.Sensor(i2c)
@@ -48,5 +48,5 @@ while 1:
     #print(format(dss.readVal()))
     print(Tcam.readVal())
     aqsVal()
-    gps.readVal()
+#    gps.readVal()
     time.sleep(3)
