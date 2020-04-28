@@ -17,7 +17,6 @@ t_cam = DRR.Thermal_Cam(i2c)
 gps = DRR.GPS()
 temp_imu = DRR.Sensor(i2c)
 gyro_sensor = DRR.Sensor(i2c)
-
 us_dis = DRR.Ultrasonic(TRIG,ECHO)
 
 #gps_q = Queue()
@@ -28,12 +27,11 @@ dis_q = Queue()
 human_detected = Event()
 obstacle_detected = Event()
 
-curr_sensor_vals = {"Temperature":None, "Gyro:":None,"Current location":None}
+curr_sensor_vals = {"Temperature":None, "Gyro:":None,"Current location":None, "Time":None}
+human_list = []
 
-#i2c_lock = Lock()
-#gps_l = Lock()
-#temp_l = Lock()
-#gyro_l = Lock()
+start_time = time.time()
+curr_time = time.time()
 
 #Ultrasonic Distance Sensor
 def detectObstacle(us_dis):
@@ -78,9 +76,13 @@ def alertUser():
     while True:
         human_detected.wait()
         print("Human detected!!")
+        updateHumanList()
         human_detected.clear()
     return
 
+def updateHumanList():
+    human_list.append(curr_sensor_vals)
+    return human_list
 
 #GPS
 def currentLocation(gps):
@@ -147,7 +149,11 @@ def currValues():
         if(gyro_q.qsize()!=0):
             curr_gyro = gyro_q.get_nowait()
             curr_sensor_vals["Gyro"] = curr_gyro
-#        print(curr_sensor_vals)
+
+        if(curr_sensor_vals["Time"] != curr_time):
+            curr_time = time.time()-start_time
+            curr_sensor_vals["Time"] = curr_time
+
     return curr_sensor_vals
 
 
@@ -197,5 +203,3 @@ gyro_thread.join()
 print_curr_vals.join()
 
 #notes:
-#Require locks for the Queues
-#Need to impliment a loop for the gps_readVal funciton in DRR.py
