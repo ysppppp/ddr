@@ -50,9 +50,9 @@ def obstacleCheck():
             obstacle_detected.set()
 
 def obstacleDetected():
-    while
-    obstacle_detected.wait()
-    print('too close to an object')
+    while True:
+        obstacle_detected.wait()
+        print('too close to an object')
 
 #Termal Camera
 def detectHuman(t_cam):
@@ -138,17 +138,17 @@ def currValues():
     curr_gyro = {}
     curr_loc = {}
     while True:
-        if(gps_q.qsize() != 0):
-            curr_loc = gps_q.get_nowait()
-            curr_sensor_vals["Current location"] = curr_loc
+#        if(gps_q.qsize() != 0):
+#            curr_loc = gps_q.get_nowait()
+#            curr_sensor_vals["Current location"] = curr_loc
         if(temp_q.qsize()!=0):
             curr_temp = temp_q.get()
             curr_sensor_vals["Temperature"] = curr_temp
         if(gyro_q.qsize()!=0):
             curr_gyro = gyro_q.get_nowait()
             curr_sensor_vals["Gyro"] = curr_gyro
-        print(curr_sensor_vals)
-    return
+#        print(curr_sensor_vals)
+    return curr_sensor_vals
 
 
 
@@ -160,10 +160,10 @@ alert_user_thread.start()
 
 us_dis_thread = Thread(target=detectObstacle, args=[us_dis])
 us_dis_thread.start()
-obstacleCheck_thread = Thread(target=obstacleCheck)
-obstacleCheck_thread.start()
-obstacleDetected_thread = Thread(target=obstacleDetected)
-obstacleDetected_thread.start()
+#obstacleCheck_thread = Thread(target=obstacleCheck)
+#obstacleCheck_thread.start()
+#obstacleDetected_thread = Thread(target=obstacleDetected)
+#obstacleDetected_thread.start()
 
 gps_thread = Thread(target=currentLocation, args=[gps])
 gps_thread.start()
