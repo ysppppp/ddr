@@ -66,11 +66,9 @@ def detectHuman(t_cam):
         if (TEMPCOUNT > 32):
             human_detected.set()
             time.sleep(3)
-#            return True
-#        else:
-#            return False
-    return
 
+def tcampix():
+    return t_cam.readVal()
 
 def alertUser():
     while True:
@@ -82,7 +80,9 @@ def alertUser():
 
 def updateHumanList():
     human_list.append(curr_sensor_vals)
-    return human_list
+
+def HumanList():
+    return human_list;
 
 #GPS
 def currentLocation(gps):
@@ -140,9 +140,9 @@ def currValues():
     curr_gyro = {}
     curr_loc = {}
     while True:
-#        if(gps_q.qsize() != 0):
-#            curr_loc = gps_q.get_nowait()
-#            curr_sensor_vals["Current location"] = curr_loc
+        if(gps_q.qsize() != 0):
+            curr_loc = gps_q.get_nowait()
+            curr_sensor_vals["Current location"] = curr_loc
         if(temp_q.qsize()!=0):
             curr_temp = temp_q.get()
             curr_sensor_vals["Temperature"] = curr_temp
@@ -186,8 +186,8 @@ gyro_thread.start()
 # print_gyro = Thread(target=printGyro, args=[])
 # print_gyro.start()
 
-print_curr_vals = Thread(target=currValues, args=[])
-print_curr_vals.start()
+#print_curr_vals = Thread(target=currValues, args=[])
+#print_curr_vals.start()
 
 t_cam_thread.join()
 alert_user_thread.join()
@@ -200,6 +200,6 @@ temp_thread.join()
 # print_temp.join()
 gyro_thread.join()
 # print_gyro.join()
-print_curr_vals.join()
+#print_curr_vals.join()
 
 #notes:

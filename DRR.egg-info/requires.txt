@@ -1,7 +1,7 @@
+pyserial
+spidev
+pyserial
 Adafruit_BBIO
 adafruit-circuitpython-amg88xx
 adafruit-circuitpython-lsm9ds1
 adafruit-circuitpython-sgp30
-pyserial
-pyserial
-spidev
