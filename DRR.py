@@ -121,8 +121,9 @@ class AQSensor:
 class GPS:
     def __init__(self):
         self.ser = serial.Serial ("/dev/ttyS0", 9600)
-
+        
     def readVal(self):
+        gpsData = None
         res = 0
         received_data = self.ser.read()              #read serial port
         time.sleep(0.03)

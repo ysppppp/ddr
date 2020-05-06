@@ -16,12 +16,12 @@ OBSTACLE = 15
 
 
 t_cam = DRR.Thermal_Cam(i2c)
-#gps = DRR.GPS()
+gps = DRR.GPS()
 temp_imu = DRR.Sensor(i2c)
 gyro_sensor = DRR.Sensor(i2c)
 #us_dis = DRR.Ultrasonic(TRIG,ECHO)
 
-#gps_q = Queue()
+gps_q = Queue()
 temp_q = Queue()
 gyro_q = Queue()
 dis_q = Queue()
@@ -29,7 +29,7 @@ dis_q = Queue()
 human_detected = Event()
 obstacle_detected = Event()
 
-curr_sensor_vals = {"Temperature":None, "Gyro:":None,"Current location":None, "Time":None}
+curr_sensor_vals = {"Temperature":None, "Gyro":None,"Current location":None, "Time":None}
 human_list = []
 
 start_time = time.time()
@@ -68,7 +68,8 @@ def detectHuman(t_cam):
         #print(TEMPCOUNT)
         if (TEMPCOUNT > 32):
             human_detected.set()
-            time.sleep(3)
+            
+        time.sleep(0.5)
 
 def tcampix():
     return t_cam.readVal()
@@ -88,13 +89,13 @@ def HumanList():
     return human_list;
 
 #GPS
-#def currentLocation(gps):
-#   while True:
-#       gps_dict = gps.readVal()
-#       time.sleep(1)
-#       gps_q.put_nowait(gps_dict)
-#       # print('hi1')
-#   return
+def currentLocation(gps):
+   while True:
+       gps_dict = gps.readVal()
+       time.sleep(0.5)
+       gps_q.put_nowait(gps_dict)
+       # print('hi1')
+   
 
 # def printLocation():
 #    while True
@@ -123,7 +124,7 @@ def currentTemp(temp_imu):
 #IMU (Accelerometer, gyro)
 def currentGyro(gyro_sensor):
     while True:
-        print('hello')
+#        print('hello')
         mag_x, mag_y, mag_z, gyro_x, gyro_y, gyro_z = gyro_sensor.read_IMU()
         gyro_data = {"gyro x":gyro_x, "gyro y":gyro_y, "gyro z":gyro_z}
 #        print(gyro_data)
@@ -146,9 +147,9 @@ def currValues():
     curr_gyro = {}
     curr_loc = {}
     while True:
-#        if(gps_q.qsize() != 0):
-#            curr_loc = gps_q.get_nowait()
-#            curr_sensor_vals["Current location"] = curr_loc
+        if(gps_q.qsize() != 0):
+            curr_loc = gps_q.get_nowait()
+            curr_sensor_vals["Current location"] = curr_loc
         if(temp_q.qsize()!=0):
             curr_temp = temp_q.get()
             curr_sensor_vals["Temperature"] = curr_temp
@@ -157,9 +158,9 @@ def currValues():
             curr_sensor_vals["Gyro"] = curr_gyro
 
        
-#        curr_time = datetime.datetime.now()
-#        curr_sensor_vals["Time"] = curr_time
-
+        curr_time = datetime.datetime.now()
+        curr_sensor_vals["Time"] = curr_time
+        print(curr_sensor_vals["Time"])
         return curr_sensor_vals
 
 
@@ -172,8 +173,12 @@ def hello():
 
 @app.route('/curdata')
 def curData():
-    curr_temp, curr_gyro, curr_loc, curr_time = currValues();
-    print(currValues())
+    curr_dict = currValues()
+    curr_temp = curr_dict["Temperature"]
+    curr_gyro = curr_dict["Gyro"]
+    curr_loc = curr_dict["Current location"]
+    curr_time = curr_dict["Time"]
+    
     return render_template('data.html', temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time)
 #temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time
 @app.route('/tcam')
@@ -201,8 +206,8 @@ if __name__ == "__main__":
     #obstacleDetected_thread = Thread(target=obstacleDetected)
     #obstacleDetected_thread.start()
 
-#    gps_thread = Thread(target=currentLocation, args=[gps])
-#    gps_thread.start()
+    gps_thread = Thread(target=currentLocation, args=[gps])
+    gps_thread.start()
     #print_gps = Thread(target=printLocation, args=[])
     #print_gps.start()
 
