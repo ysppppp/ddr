@@ -18,8 +18,8 @@ accgyro = DRR.Sensor(i2c)
 #print(accgyro.read_IMU())
 
 #ultrasonic
-#us_dis = DRR.Ultrasonic(TRIG, ECHO)
-#print(us_dis.distance())
+us_dis = DRR.Ultrasonic(TRIG, ECHO)
+print(us_dis.distance())
 
 #dust sensor(photodiode)
 dss = DRR.Dsensor()
@@ -44,7 +44,7 @@ def aqsVal():
 gps = DRR.GPS()
 while 1:
     print(accgyro.read_IMU())
-    #print(us_dis.distance())
+    print(us_dis.distance())
     #print(format(dss.readVal()))
     print(Tcam.readVal())
     aqsVal()

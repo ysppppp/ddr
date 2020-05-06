@@ -85,13 +85,13 @@ def HumanList():
     return human_list;
 
 #GPS
-def currentLocation(gps):
-   while True:
-       gps_dict = gps.readVal()
-       time.sleep(1)
-       gps_q.put_nowait(gps_dict)
-       # print('hi1')
-   return
+#def currentLocation(gps):
+#   while True:
+#       gps_dict = gps.readVal()
+#       time.sleep(1)
+#       gps_q.put_nowait(gps_dict)
+#       # print('hi1')
+#   return
 
 # def printLocation():
 #    while True

@@ -3,6 +3,7 @@ import DRR
 import time
 import board
 import busio
+import datetime
 from threading import Thread, Event, Lock
 from queue import Queue
 i2c = DRR.busio.I2C(DRR.board.SCL, DRR.board.SDA)
@@ -15,10 +16,10 @@ OBSTACLE = 15
 
 
 t_cam = DRR.Thermal_Cam(i2c)
-gps = DRR.GPS()
+#gps = DRR.GPS()
 temp_imu = DRR.Sensor(i2c)
 gyro_sensor = DRR.Sensor(i2c)
-us_dis = DRR.Ultrasonic(TRIG,ECHO)
+#us_dis = DRR.Ultrasonic(TRIG,ECHO)
 
 #gps_q = Queue()
 temp_q = Queue()
@@ -32,27 +33,28 @@ curr_sensor_vals = {"Temperature":None, "Gyro:":None,"Current location":None, "T
 human_list = []
 
 start_time = time.time()
-curr_time = time.time()
+curr_time = datetime.datetime.now()
+print(curr_time)
 
 #Ultrasonic Distance Sensor
-def detectObstacle(us_dis):
-    while True:
-        distance = us_dis.distance()
-        time.sleep(1)
-        dis_q.put(distance)
-    return
+#def detectObstacle(us_dis):
+#    while True:
+#        distance = us_dis.distance()
+#        time.sleep(1)
+#        dis_q.put(distance)
+#    return
 
-def obstacleCheck():
-    while True:
-        dis = dis_q.get()
-        if (dis < OBSTACLE):
-            obstacle_detected.set()
-
-def obstacleDetected():
-    while True:
-        obstacle_detected.wait()
-        print('too close to an object')
-
+#def obstacleCheck():
+#    while True:
+#        dis = dis_q.get()
+#        if (dis < OBSTACLE):
+#            obstacle_detected.set()
+#
+#def obstacleDetected():
+#    while True:
+#        obstacle_detected.wait()
+#        print('too close to an object')
+#
 #Termal Camera
 def detectHuman(t_cam):
     while True:
@@ -63,7 +65,7 @@ def detectHuman(t_cam):
         for temp in temp_reading:
             if temp >= HUMANTEMP:
                 TEMPCOUNT+=1
-        print(TEMPCOUNT)
+        #print(TEMPCOUNT)
         if (TEMPCOUNT > 32):
             human_detected.set()
             time.sleep(3)
@@ -86,13 +88,13 @@ def HumanList():
     return human_list;
 
 #GPS
-def currentLocation(gps):
-   while True:
-       gps_dict = gps.readVal()
-       time.sleep(1)
-       gps_q.put_nowait(gps_dict)
-       # print('hi1')
-   return
+#def currentLocation(gps):
+#   while True:
+#       gps_dict = gps.readVal()
+#       time.sleep(1)
+#       gps_q.put_nowait(gps_dict)
+#       # print('hi1')
+#   return
 
 # def printLocation():
 #    while True
@@ -121,11 +123,14 @@ def currentTemp(temp_imu):
 #IMU (Accelerometer, gyro)
 def currentGyro(gyro_sensor):
     while True:
+        print('hello')
         mag_x, mag_y, mag_z, gyro_x, gyro_y, gyro_z = gyro_sensor.read_IMU()
         gyro_data = {"gyro x":gyro_x, "gyro y":gyro_y, "gyro z":gyro_z}
+#        print(gyro_data)
         time.sleep(1)
+        
         gyro_q.put(gyro_data)
-    return
+    
 
 # def printGyro():
 #     while True:
@@ -141,9 +146,9 @@ def currValues():
     curr_gyro = {}
     curr_loc = {}
     while True:
-        if(gps_q.qsize() != 0):
-            curr_loc = gps_q.get_nowait()
-            curr_sensor_vals["Current location"] = curr_loc
+#        if(gps_q.qsize() != 0):
+#            curr_loc = gps_q.get_nowait()
+#            curr_sensor_vals["Current location"] = curr_loc
         if(temp_q.qsize()!=0):
             curr_temp = temp_q.get()
             curr_sensor_vals["Temperature"] = curr_temp
@@ -151,11 +156,11 @@ def currValues():
             curr_gyro = gyro_q.get_nowait()
             curr_sensor_vals["Gyro"] = curr_gyro
 
-        if(curr_sensor_vals["Time"] != curr_time):
-            curr_time = time.time()-start_time
-            curr_sensor_vals["Time"] = curr_time
+       
+#        curr_time = datetime.datetime.now()
+#        curr_sensor_vals["Time"] = curr_time
 
-    return curr_sensor_vals
+        return curr_sensor_vals
 
 
 
@@ -167,18 +172,18 @@ def hello():
 
 @app.route('/curdata')
 def curData():
-    curr_temp, curr_gyro, curr_loc, curr_time = drr.currValues;
-    return render_template('data.html',temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time)
-
+    curr_temp, curr_gyro, curr_loc, curr_time = currValues();
+    print(currValues())
+    return render_template('data.html', temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time)
+#temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time
 @app.route('/tcam')
 def tcam():
-    while True:
-        tcampix = drr.tcampix()
+    tcampix = tcampix()
     return render_template("tcam.html", tcam = tcampix)
 
 @app.route('/victims')
 def data():
-    victimslist = drr.HumanList();
+    victimslist = HumanList();
     return render_template("victims.html", victims = victimslist)
 
 if __name__ == "__main__":
@@ -189,15 +194,15 @@ if __name__ == "__main__":
     alert_user_thread = Thread(target=alertUser,args=[])
     alert_user_thread.start()
 
-    us_dis_thread = Thread(target=detectObstacle, args=[us_dis])
-    us_dis_thread.start()
+#    us_dis_thread = Thread(target=detectObstacle, args=[us_dis])
+#    us_dis_thread.start()
     #obstacleCheck_thread = Thread(target=obstacleCheck)
     #obstacleCheck_thread.start()
     #obstacleDetected_thread = Thread(target=obstacleDetected)
     #obstacleDetected_thread.start()
 
-    gps_thread = Thread(target=currentLocation, args=[gps])
-    gps_thread.start()
+#    gps_thread = Thread(target=currentLocation, args=[gps])
+#    gps_thread.start()
     #print_gps = Thread(target=printLocation, args=[])
     #print_gps.start()
 
