@@ -4,6 +4,7 @@ import time
 import board
 import busio
 import datetime
+import copy
 from threading import Thread, Event, Lock
 from queue import Queue
 i2c = DRR.busio.I2C(DRR.board.SCL, DRR.board.SDA)
@@ -14,12 +15,16 @@ ECHO = 23
 HUMANTEMP = 32
 OBSTACLE = 15
 
+motorL = DRR.Motor(18)
+motorR = DRR.Motor(13)
+motorL.move_forward(50)
+motorR.move_forward(50)
 
 t_cam = DRR.Thermal_Cam(i2c)
 gps = DRR.GPS()
 temp_imu = DRR.Sensor(i2c)
 gyro_sensor = DRR.Sensor(i2c)
-#us_dis = DRR.Ultrasonic(TRIG,ECHO)
+us_dis = DRR.Ultrasonic(TRIG,ECHO)
 
 gps_q = Queue()
 temp_q = Queue()
@@ -36,28 +41,33 @@ start_time = time.time()
 curr_time = datetime.datetime.now()
 print(curr_time)
 
-#Ultrasonic Distance Sensor
-#def detectObstacle(us_dis):
-#    while True:
-#        distance = us_dis.distance()
-#        time.sleep(1)
-#        dis_q.put(distance)
-#    return
+def movement():
+    while True:
+        obstacle_detected.wait()
+        motorL.stop()
+        print('too close to an object')
+        time.sleep(1)
+        obstacle_detected.clear()
+        motorL.move_forward(50)
 
-#def obstacleCheck():
-#    while True:
-#        dis = dis_q.get()
-#        if (dis < OBSTACLE):
-#            obstacle_detected.set()
-#
-#def obstacleDetected():
-#    while True:
-#        obstacle_detected.wait()
-#        print('too close to an object')
-#
+#Ultrasonic Distance Sensor
+def detectObstacle(us_dis):
+    while True:
+        distance = us_dis.distance()
+        time.sleep(1)
+        dis_q.put(distance)
+    return
+def obstacleCheck():
+    while True:
+        dis = dis_q.get()
+        if (dis < OBSTACLE):
+            obstacle_detected.set()
 #Termal Camera
 def detectHuman(t_cam):
+    startingtime = 0
     while True:
+        
+        startingtime += 1
         TEMPCOUNT = 0
         temp_pixels = t_cam.readVal()
         # print(temp_pixels)
@@ -67,23 +77,28 @@ def detectHuman(t_cam):
                 TEMPCOUNT+=1
         #print(TEMPCOUNT)
         if (TEMPCOUNT > 32):
-            human_detected.set()
+            print(startingtime)
+            if ( startingtime > 15):
+                startingtime = 0
+                time.sleep(0.5)
+                human_detected.set()
+                
+                
             
         time.sleep(0.5)
-
-def tcampix():
-    return t_cam.readVal()
 
 def alertUser():
     while True:
         human_detected.wait()
         print("Human detected!!")
-        updateHumanList()
+        t = copy.copy(currValues())
+        human_list.append(t)
+        time.sleep(1)
         human_detected.clear()
     return
 
-def updateHumanList():
-    human_list.append(curr_sensor_vals)
+#def updateHumanList():
+#    human_list.append(currValues())
 
 def HumanList():
     return human_list;
@@ -183,7 +198,7 @@ def curData():
 #temp = curr_temp, gyro = curr_gyro, loc = curr_loc, time = curr_time
 @app.route('/tcam')
 def tcam():
-    tcampix = tcampix()
+    tcampix = t_cam.readVal()
     return render_template("tcam.html", tcam = tcampix)
 
 @app.route('/victims')
@@ -198,7 +213,13 @@ if __name__ == "__main__":
     t_cam_thread.start()
     alert_user_thread = Thread(target=alertUser,args=[])
     alert_user_thread.start()
-
+    
+    us_dis_thread = Thread(target=detectObstacle, args=[us_dis])
+    us_dis_thread.start()
+    obstacleCheck_thread = Thread(target=obstacleCheck)
+    obstacleCheck_thread.start()
+    movement_thread = Thread(target=movement, args=[])
+    movement_thread.start()
 #    us_dis_thread = Thread(target=detectObstacle, args=[us_dis])
 #    us_dis_thread.start()
     #obstacleCheck_thread = Thread(target=obstacleCheck)
@@ -232,3 +253,6 @@ if __name__ == "__main__":
     gyro_thread.join()
     # print_gyro.join()
     #print_curr_vals.join()
+    us_dis_thread.join()
+    obstacleCheck_thread.join()
+    movement_thread.join()
